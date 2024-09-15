@@ -5,36 +5,29 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const Hat: React.FC = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('Choose the Type of Hat');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleOptionClick = (option: string) => {
-    setSelectedOption(option);
-    setIsDropdownOpen(false);
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setVideoFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (file.type.startsWith('video/')) {
+        setVideoFile(file);
+      } else {
+        toast.error('Please upload a valid video file.');
+      }
     }
   };
 
   const resetForm = () => {
-    setSelectedOption('Choose the Type of hats');
     setVideoFile(null);
     setIsLoading(false);
   };
 
   const handleSubmit = async () => {
-    if (!videoFile || selectedOption === 'Choose the Type of Hat') {
-      toast.error('Please select a video file and a type of hat.');
+    if (!videoFile) {
+      toast.error('Please select a video file.');
       return;
     }
 
@@ -42,7 +35,6 @@ const Hat: React.FC = () => {
 
     const formData = new FormData();
     formData.append('video', videoFile);
-    formData.append('hat_type', selectedOption); // ส่งประเภทของหมวกไปยังเซิร์ฟเวอร์
 
     try {
       const response = await fetch('http://localhost:5000/result_hats', {
@@ -71,68 +63,8 @@ const Hat: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center mt-10">
-      <h2 className="text-2xl mb-4 font-bold">Detection Hat</h2>
+      <h2 className="text-2xl mb-4 font-bold">Hat Detection</h2>
       <div className="bg-gray-200 p-6 rounded-lg shadow-lg">
-        <div className="mb-4 relative">
-          <button
-            id="dropdownDefaultButton"
-            data-dropdown-toggle="dropdown"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            type="button"
-            onClick={toggleDropdown}
-          >
-            {selectedOption}
-            <svg
-              className="w-2.5 h-2.5 ms-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 10 6"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 1 4 4 4-4"
-              />
-            </svg>
-          </button>
-          {isDropdownOpen && (
-            <ul className="absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg">
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleOptionClick('Balaclava')}
-              >
-                Balaclava
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleOptionClick('Baseball Cap')}
-              >
-                Baseball Cap
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleOptionClick('Beanie')}
-              >
-                Beanie
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleOptionClick('Bucket Hat')}
-              >
-                Bucket Hat
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleOptionClick('Helmet')}
-              >
-                Helmet
-              </li>
-            </ul>
-          )}
-        </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
             Select Video File
