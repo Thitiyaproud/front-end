@@ -5,13 +5,12 @@ import React, { useEffect, useState } from 'react';
 interface ImageData {
   filename: string;
   timestamp: string;
-  name: string; // ใช้ชื่อที่ดึงมาจากข้อมูล JSON
+  imageName: any; // ใช้ชื่อที่ดึงมาจากข้อมูล JSON
   url: string;
 }
 
 const ResultPage = () => {
   const [images, setImages] = useState<ImageData[]>([]);
-  const [personName, setPersonName] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -24,11 +23,6 @@ const ResultPage = () => {
         if (response.ok) {
           const data = await response.json();
           console.log('Fetched Images:', data.images);
-
-          // ตรวจสอบว่า data มี personName หรือไม่ ถ้ามีให้ตั้งค่าให้ state
-          if (data.personName) {
-            setPersonName(data.personName);
-          }
 
           if (Array.isArray(data.images) && data.images.length > 0) {
             const sortedImages = data.images.sort((a: ImageData, b: ImageData) => {
@@ -80,7 +74,7 @@ const ResultPage = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Detection Results for {personName || 'Unknown'}</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Detection Results</h1>
       {images.length === 0 ? (
         <div className="text-center">No results available</div>
       ) : (
@@ -96,10 +90,10 @@ const ResultPage = () => {
             <tbody>
               {currentItems.map((image, index) => (
                 <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                  <td className="px-6 py-4 border">{image.name}</td>
+                  <td className="px-6 py-4 border">{image.imageName}</td>
                   <td className="px-6 py-4 border">{image.timestamp}</td>
                   <td className="px-6 py-4 border">
-                    <img src={image.url} alt={`Result for ${image.name || personName || 'Unknown'} at ${image.timestamp}`} className="w-32 h-auto" />
+                    <img src={image.url} alt={`Result for ${image.imageName || 'Unknown'} at ${image.timestamp}`} className="w-32 h-auto" />
                   </td>
                 </tr>
               ))}

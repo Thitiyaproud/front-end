@@ -11,23 +11,23 @@ export async function GET() {
     const files = await fs.readdir(directoryPath);
 
     const imageUrls = files.map((file) => {
-      const timestampMatch = file.match(/_(\d+(\.\d+)?)\.jpg$/);
-      const timestampInSeconds = timestampMatch ? parseFloat(timestampMatch[1]) : 0;
+      // จับคู่เพื่อดึง image_name จากชื่อไฟล์ เช่น film1_6300_210.jpg
+      const match = file.match(/^(.+?)_\d+_\d+\.jpg$/); 
+      const imageName = match ? match[1] : 'Unknown'; // ดึง image_name
+      const timestampMatch = file.match(/_(\d+)\.jpg$/);
+      const timestampInSeconds = timestampMatch ? parseInt(timestampMatch[1]) : 0;
 
       // แปลง timestamp จากวินาทีเป็นรูปแบบ hh:mm:ss
       const timestamp = formatTimestamp(timestampInSeconds);
 
-      const name = path.basename(file, path.extname(file));
-      const personName = name.includes('result') ? 'film' : 'Unknown';
-
       return { 
         url: `http://localhost:5000/output_frames/${file}`,
-        name: personName,
+        imageName, // ส่งชื่อ image_name ออกมา
         timestamp 
       };
     });
 
-    return NextResponse.json({ images: imageUrls, personName: 'film' }, { status: 200 });
+    return NextResponse.json({ images: imageUrls }, { status: 200 });
   } catch (error) {
     console.error('Error reading directory:', error);
     return NextResponse.json({ error: 'Error fetching images' }, { status: 500 });
