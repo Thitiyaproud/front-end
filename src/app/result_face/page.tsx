@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 interface ImageData {
   filename: string;
   timestamp: string;
-  imageName: any; // ใช้ชื่อที่ดึงมาจากข้อมูล JSON
+  imageName: any;
   url: string;
 }
 
@@ -15,33 +15,28 @@ const ResultPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5;
+  const pagesToShow = 5;
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await fetch('/api/face'); // ใช้ GET
+        const response = await fetch('/api/face'); 
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched Images:', data.images);
-
           if (Array.isArray(data.images) && data.images.length > 0) {
             const sortedImages = data.images.sort((a: ImageData, b: ImageData) => {
               const timeA = convertTimestampToSeconds(a.timestamp);
               const timeB = convertTimestampToSeconds(b.timestamp);
               return timeA - timeB;
             });
-
             setImages(sortedImages);
           } else {
-            console.error('Error: No valid image data received:', data);
             setError('No images available');
           }
         } else {
-          console.error('Error fetching images:', response.statusText);
           setError('Error fetching images');
         }
       } catch (error) {
-        console.error('Error fetching images:', error);
         setError('Failed to fetch images');
       } finally {
         setLoading(false);
@@ -63,6 +58,12 @@ const ResultPage = () => {
   const currentItems = images.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const getPageNumbers = () => {
+    const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+  };
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
@@ -98,24 +99,42 @@ const ResultPage = () => {
                 </tr>
               ))}
             </tbody>
-            
           </table>
+
           <div className="flex justify-center mt-4">
             <nav>
               <ul className="inline-flex -space-x-px">
-                {[...Array(totalPages)].map((_, index) => (
-                  <li key={index}>
+                <li>
+                  <button
+                    onClick={() => paginate(Math.max(1, currentPage - 1))}
+                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {getPageNumbers().map((page) => (
+                  <li key={page}>
                     <button
-                      onClick={() => paginate(index + 1)}
-                      className={`px-3 py-2 leading-tight ${currentPage === index + 1
+                      onClick={() => paginate(page)}
+                      className={`px-3 py-2 leading-tight ${currentPage === page
                         ? 'text-blue-600 bg-blue-50 border border-blue-300'
                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
                         }`}
                     >
-                      {index + 1}
+                      {page}
                     </button>
                   </li>
                 ))}
+                <li>
+                  <button
+                    onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>

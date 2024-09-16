@@ -12,7 +12,8 @@ interface ImageData {
 const ResultPage = () => {
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5); // จำนวนรายการต่อหน้า
+  const itemsPerPage = 5; // จำนวนรายการต่อหน้า
+  const pagesToShow = 5; // จำนวนหน้าที่จะแสดงในแต่ละคราว
   const [loading, setLoading] = useState(true); // สำหรับแสดงสถานะโหลดข้อมูล
   const [error, setError] = useState<string | null>(null); // สำหรับแสดงข้อผิดพลาด
   const [filter, setFilter] = useState<string>('All'); // ตัวกรองประเภทแว่นตา
@@ -23,8 +24,6 @@ const ResultPage = () => {
         const response = await fetch('/api/glasses');
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched Images:', data.images);
-
           if (Array.isArray(data.images)) {
             const sortedImages = data.images.sort((a: ImageData, b: ImageData) => {
               const timeA = convertTimestampToSeconds(a.timestamp);
@@ -33,14 +32,12 @@ const ResultPage = () => {
             });
             setImages(sortedImages);
           } else {
-            console.error('Error: Data is not an array:', data);
+            setError('No images available');
           }
         } else {
-          console.error('Error fetching images:', response.statusText);
           setError('Error fetching images');
         }
       } catch (error) {
-        console.error('Error fetching images:', error);
         setError('Failed to fetch images');
       } finally {
         setLoading(false);
@@ -66,6 +63,13 @@ const ResultPage = () => {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+  // สร้างเลขหน้าสำหรับแสดงผล
+  const getPageNumbers = () => {
+    const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+  };
+
   if (loading) {
     return <div className="text-center">Loading...</div>;
   }
@@ -79,7 +83,7 @@ const ResultPage = () => {
       <h1 className="text-3xl font-bold mb-8 flex justify-center">Detection Results</h1>
 
       {/* ตัวกรองประเภทแว่นตา */}
-      <div className="flex justify-center mb-4 ">
+      <div className="flex justify-center mb-4">
         <select
           className="border rounded p-2"
           value={filter}
@@ -127,19 +131,37 @@ const ResultPage = () => {
           <div className="flex justify-center mt-4">
             <nav>
               <ul className="inline-flex -space-x-px">
-                {[...Array(totalPages)].map((_, index) => (
-                  <li key={index}>
+                <li>
+                  <button
+                    onClick={() => paginate(Math.max(1, currentPage - 1))}
+                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {getPageNumbers().map((page) => (
+                  <li key={page}>
                     <button
-                      onClick={() => paginate(index + 1)}
-                      className={`px-3 py-2 leading-tight ${currentPage === index + 1
+                      onClick={() => paginate(page)}
+                      className={`px-3 py-2 leading-tight ${currentPage === page
                         ? 'text-blue-600 bg-blue-50 border border-blue-300'
                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
                         }`}
                     >
-                      {index + 1}
+                      {page}
                     </button>
                   </li>
                 ))}
+                <li>
+                  <button
+                    onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>
