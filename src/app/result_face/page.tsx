@@ -52,18 +52,30 @@ const ResultPage = () => {
     return (hours * 3600) + (minutes * 60) + seconds;
   };
 
+  // คำนวณจำนวนหน้าทั้งหมด
   const totalPages = Math.ceil(images.length / itemsPerPage);
+
+  // คำนวณรายการที่จะถูกแสดงในหน้านั้นๆ
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = images.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
+  // ฟังก์ชันสำหรับคำนวณเลขหน้าที่จะแสดง
   const getPageNumbers = () => {
     const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
-    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+    const pageNumbers = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
   };
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // ฟังก์ชันสำหรับไปหน้าก่อนหน้าและหน้าถัดไป
+  const goToPreviousPage = () => setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+  const goToNextPage = () => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
@@ -106,29 +118,29 @@ const ResultPage = () => {
               <ul className="inline-flex -space-x-px">
                 <li>
                   <button
-                    onClick={() => paginate(Math.max(1, currentPage - 1))}
+                    onClick={goToPreviousPage}
                     className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                     disabled={currentPage === 1}
                   >
                     Previous
                   </button>
                 </li>
-                {getPageNumbers().map((page) => (
-                  <li key={page}>
+                {getPageNumbers().map((pageNumber) => (
+                  <li key={pageNumber}>
                     <button
-                      onClick={() => paginate(page)}
-                      className={`px-3 py-2 leading-tight ${currentPage === page
+                      onClick={() => paginate(pageNumber)}
+                      className={`px-3 py-2 leading-tight ${currentPage === pageNumber
                         ? 'text-blue-600 bg-blue-50 border border-blue-300'
                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
                         }`}
                     >
-                      {page}
+                      {pageNumber}
                     </button>
                   </li>
                 ))}
                 <li>
                   <button
-                    onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                    onClick={goToNextPage}
                     className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                     disabled={currentPage === totalPages}
                   >

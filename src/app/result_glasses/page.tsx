@@ -141,42 +141,42 @@ const ResultPage = () => {
               <ul className="inline-flex -space-x-px">
                 <li>
                   <button
-                    onClick={() => paginate(Math.max(1, currentPage - 1))}
+                    onClick={goToPreviousPage}
                     className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                     disabled={currentPage === 1}
                   >
                     Previous
                   </button>
-                  <ul className="inline-flex -space-x-px">
-                    {getPageNumbers().map((pageNumber) => (
-                      <li key={pageNumber}>
-                        <button
-                          onClick={() => paginate(pageNumber)}
-                          className={`px-3 py-2 leading-tight ${currentPage === pageNumber
-                            ? 'text-blue-600 bg-blue-50 border border-blue-300'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                            }`}
-                        >
-                          {pageNumber}
-                        </button>
-                      </li>
-                    ))}
-                    </ul>
-                      <button
-                        onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
-                        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                        disabled={currentPage === totalPages}
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
+                </li>
+                {getPageNumbers().map((pageNumber) => (
+                  <li key={pageNumber}>
+                    <button
+                      onClick={() => paginate(pageNumber)}
+                      className={`px-3 py-2 leading-tight ${currentPage === pageNumber
+                        ? 'text-blue-600 bg-blue-50 border border-blue-300'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                        }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    onClick={goToNextPage}
+                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
-      )}
         </div>
-      );
+      )}
+    </div>
+  );
 };
 
-      export default ResultPage;
+export default ResultPage;
