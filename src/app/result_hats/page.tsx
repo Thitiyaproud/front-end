@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 import React, { useEffect, useState } from 'react';
 
 interface ImageData {
@@ -12,6 +12,7 @@ const ResultPage = () => {
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5); // จำนวนรายการต่อหน้า
+  const pagesToShow = 5; // จำนวนหน้าที่จะแสดงในแต่ละคราว
   const [loading, setLoading] = useState(true); // สำหรับแสดงสถานะโหลดข้อมูล
   const [error, setError] = useState<string | null>(null); // สำหรับแสดงข้อผิดพลาด
   const [filter, setFilter] = useState<string>('All'); // ตัวกรองประเภทหมวก
@@ -65,8 +66,23 @@ const ResultPage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredImages.slice(indexOfFirstItem, indexOfLastItem);
 
+  // ฟังก์ชันสำหรับคำนวณเลขหน้าที่จะแสดง
+  const getPageNumbers = () => {
+    const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+    const pageNumbers = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  };
+
   // ฟังก์ชันสำหรับเปลี่ยนหน้า
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // ฟังก์ชันสำหรับไปหน้าก่อนหน้าและหน้าถัดไป
+  const goToPreviousPage = () => setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+  const goToNextPage = () => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
 
   if (loading) {
     return <div className="text-center">Loading...</div>; // แสดงข้อความโหลด
@@ -133,25 +149,38 @@ const ResultPage = () => {
               ))}
             </tbody>
           </table>
-          {/* แสดงการแบ่งหน้า */}
+
+          {/* การแบ่งหน้า */}
           <div className="flex justify-center mt-4">
-            <nav>
-              <ul className="inline-flex -space-x-px">
-                {[...Array(totalPages)].map((_, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => paginate(index + 1)}
-                      className={`px-3 py-2 leading-tight ${currentPage === index + 1
-                        ? 'text-blue-600 bg-blue-50 border border-blue-300'
-                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                        }`}
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <button
+              onClick={goToPreviousPage}
+              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <ul className="inline-flex -space-x-px">
+              {getPageNumbers().map((pageNumber) => (
+                <li key={pageNumber}>
+                  <button
+                    onClick={() => paginate(pageNumber)}
+                    className={`px-3 py-2 leading-tight ${currentPage === pageNumber
+                      ? 'text-blue-600 bg-blue-50 border border-blue-300'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                      }`}
+                  >
+                    {pageNumber}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={goToNextPage}
+              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
           </div>
         </div>
       )}

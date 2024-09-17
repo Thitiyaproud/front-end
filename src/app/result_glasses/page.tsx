@@ -61,14 +61,22 @@ const ResultPage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredImages.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  // สร้างเลขหน้าสำหรับแสดงผล
+  // ฟังก์ชันสำหรับคำนวณเลขหน้าที่จะแสดง
   const getPageNumbers = () => {
     const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
-    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+    const pageNumbers = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
   };
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // ฟังก์ชันสำหรับไปหน้าก่อนหน้าและหน้าถัดไป
+  const goToPreviousPage = () => setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+  const goToNextPage = () => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
@@ -139,36 +147,36 @@ const ResultPage = () => {
                   >
                     Previous
                   </button>
-                </li>
-                {getPageNumbers().map((page) => (
-                  <li key={page}>
-                    <button
-                      onClick={() => paginate(page)}
-                      className={`px-3 py-2 leading-tight ${currentPage === page
-                        ? 'text-blue-600 bg-blue-50 border border-blue-300'
-                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                <li>
-                  <button
-                    onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
-                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+                  <ul className="inline-flex -space-x-px">
+                    {getPageNumbers().map((pageNumber) => (
+                      <li key={pageNumber}>
+                        <button
+                          onClick={() => paginate(pageNumber)}
+                          className={`px-3 py-2 leading-tight ${currentPage === pageNumber
+                            ? 'text-blue-600 bg-blue-50 border border-blue-300'
+                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                            }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      </li>
+                    ))}
+                    </ul>
+                      <button
+                        onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
           </div>
-        </div>
       )}
-    </div>
-  );
+        </div>
+      );
 };
 
-export default ResultPage;
+      export default ResultPage;
