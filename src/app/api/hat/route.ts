@@ -12,8 +12,20 @@ export async function GET() {
       // ดึงข้อมูล timestamp จากชื่อไฟล์ เช่น "hat_frame_15.45.jpg"
       const timestamp = getTimestampFromFilename(file);
 
-      // ตรวจสอบประเภทของหมวกจากชื่อไฟล์ เช่น "bucket hat", "helmet"
-      const hatType = getHatTypeFromFilename(file);
+      // ดึงข้อมูลส่วนหมวก (hatType) จากชื่อไฟล์
+      let hatType = 'Unknown'; // ตั้งค่า default เป็น Unknown
+      const nameMatch = file.match(/(BL\d+_BC\d+_BE\d+_BH\d+_HE\d+)/);
+
+      if (nameMatch) {
+        // แทนที่รหัสของหมวก (BL, BC, BE, BH, HE) ด้วยชื่อเต็ม และแทนที่ '_' ด้วย ', '
+        hatType = nameMatch[1]
+          .replace('BL', 'balaclava')
+          .replace('BC', 'baseball cap')
+          .replace('BE', 'beanie')
+          .replace('BH', 'bucket hat')
+          .replace('HE', 'helmet')
+          .replace(/_/g, ', '); // แทนที่ทุก '_' ด้วย ', '
+      }
 
       return { url: `http://localhost:5000/output_frames/${file}`, timestamp, hatType };
     });
@@ -28,7 +40,7 @@ export async function GET() {
 // ฟังก์ชันสำหรับดึง timestamp จากชื่อไฟล์
 function getTimestampFromFilename(filename: string): string {
   // ใช้ regular expression เพื่อจับค่าที่เป็นตัวเลขหลัง 'frame_' และก่อน '.jpg'
-  const match = filename.match(/frame_(\d+(\.\d+)?)\.jpg/); 
+  const match = filename.match(/_frame_(\d+)\.jpg$/); 
   if (match) {
     // ดึงค่าที่ตรงกับ pattern ที่จับได้ (เช่น "15.45")
     const seconds = parseFloat(match[1]);

@@ -11,17 +11,24 @@ export async function GET() {
 
     // สร้าง array ของ object ที่มีข้อมูล url, glassesType, และ timestamp
     const imageUrls = files.map((file) => {
-      // แยกชื่อไฟล์เพื่อดึงข้อมูล timestamp ที่เป็นวินาที
-      const timestampMatch = file.match(/_(\d+(\.\d+)?)\.jpg$/);
+      // แยกชื่อไฟล์เพื่อดึงข้อมูล timestamp ที่เป็นตัวเลขหลัง 'frame'
+      const timestampMatch = file.match(/_frame_(\d+)\.jpg$/);
       const timestampInSeconds = timestampMatch ? parseFloat(timestampMatch[1]) : 0;
 
       // แปลง timestamp เป็นรูปแบบ hh:mm:ss
       const timestamp = formatTimestamp(timestampInSeconds);
 
-      // กำหนดประเภทของแว่นจากชื่อไฟล์
-      const glassesType = file.includes('sunglasses') ? 'Sunglasses' : 
-                         file.includes('glasses_frame') ? 'Clear Lens Glasses' : 
-                         'Unknown';
+      // ดึงข้อมูลส่วน glasses และ sunglasses จากชื่อไฟล์
+      let glassesType = 'Unknown'; // ตั้งค่า default เป็น Unknown
+      const nameMatch = file.match(/(G\d+_SG\d+)/);
+
+      if (nameMatch) {
+        // แทนที่ G ด้วย "clear glasses" และ SG ด้วย "sunglasses" และคั่นด้วย ", "
+        glassesType = nameMatch[1]
+          .replace('G', 'clear glasses')
+          .replace('SG', 'sunglasses')
+          .replace('_', ', ');
+      }
 
       return { url: `http://localhost:5000/output_frames/${file}`, glassesType, timestamp };
     });
