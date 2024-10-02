@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 export async function GET() {
-  const directoryPath = path.join('D:/senior-project-1/back-end/output_frames');
+  const directoryPath = path.join('/output_frames');
 
   try {
     await fs.mkdir(directoryPath, { recursive: true });
