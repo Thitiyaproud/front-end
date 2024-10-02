@@ -58,8 +58,27 @@ const ResultPage = () => {
   };
 
   // กรองรายการตามประเภทของหมวก
-  const filteredImages = filter === 'All' ? images : images.filter(image => image.hatType === filter);
-
+  const filteredImages = filter === 'All' 
+  ? images
+  : images.filter(image => {
+      if (filter === 'balaclava') {
+        // กรองเฉพาะ clear glasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /balaclava[1-9]\d*/.test(image.hatType);
+      } else if (filter === 'baseball cap') {
+        // กรองเฉพาะ sunglasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /baseball cap[1-9]\d*/.test(image.hatType);
+      } else if (filter === 'beanie') {
+        // กรองเฉพาะ sunglasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /beanie[1-9]\d*/.test(image.hatType);
+      }else if (filter === 'bucket hat') {
+        // กรองเฉพาะ sunglasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /bucket hat[1-9]\d*/.test(image.hatType);
+      }else if (filter === 'Helmet') {
+        // กรองเฉพาะ sunglasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /Helmet[1-9]\d*/.test(image.hatType);
+      }
+      return false;
+    });
   // คำนวณจำนวนหน้าทั้งหมด
   const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -104,11 +123,11 @@ const ResultPage = () => {
           onChange={(e) => setFilter(e.target.value)}
         >
           <option value="All">All</option>
-          <option value="Balaclava">Balaclava</option>
-          <option value="Baseball Cap">Baseball Cap</option>
-          <option value="Beanie">Beanie</option>
-          <option value="Bucket Hat">Bucket Hat</option>
-          <option value="Helmet">Helmet</option>
+          <option value="balaclava">balaclava</option>
+          <option value="baseball cap">baseball cap</option>
+          <option value="beanie">beanie</option>
+          <option value="bucket hat">bucket hat</option>
+          <option value="helmet">helmet</option>
         </select>
       </div>
 

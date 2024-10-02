@@ -54,7 +54,18 @@ const ResultPage = () => {
   };
 
   // กรองรายการตามประเภทของแว่นตา
-  const filteredImages = filter === 'All' ? images : images.filter(image => image.glassesType === filter);
+  const filteredImages = filter === 'All'
+  ? images
+  : images.filter(image => {
+      if (filter === 'clear glasses') {
+        // กรองเฉพาะ clear glasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /clear glasses[1-9]\d*/.test(image.glassesType);
+      } else if (filter === 'sunglasses') {
+        // กรองเฉพาะ sunglasses ที่มีเลข 1 ขึ้นไปตามหลัง
+        return /sunglasses[1-9]\d*/.test(image.glassesType);
+      }
+      return false;
+    });
 
   const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -98,8 +109,8 @@ const ResultPage = () => {
           onChange={(e) => setFilter(e.target.value)}
         >
           <option value="All">All</option>
-          <option value="Clear Lens Glasses">Clear Lens Glasses</option>
-          <option value="Sunglasses">Sunglasses</option>
+          <option value="clear glasses">clear glasses</option>
+          <option value="sunglasses">sunglasses</option>
         </select>
       </div>
 
